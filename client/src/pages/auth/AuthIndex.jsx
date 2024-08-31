@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import { apiClient } from '../../lib/api-client'
 import { LOGIN_ROUTE, SIGNUP_ROUTE } from '../../utils/constants'
 import { useNavigate } from "react-router-dom"
+import { useAppStore } from '../../store/storeIndex'
 
 
 function AuthIndex() {
@@ -13,6 +14,7 @@ function AuthIndex() {
     const [password, setPassword] = useState("")
     const [confirmpassword, setConfirmpassword] = useState("")
     const navigate = useNavigate()
+    const { setUserInfo } = useAppStore()
 
     const validateSignup = () => {
         if (!email.length) {
@@ -51,6 +53,7 @@ function AuthIndex() {
             const response = await apiClient.post(SIGNUP_ROUTE, { email, password }, { withCredentials: true })
 
             if (response.status === 201) {
+                setUserInfo(response.data.user)
                 navigate("/profile")
             }
             console.log(response.data);
@@ -61,8 +64,12 @@ function AuthIndex() {
     const handleLogin = async () => {
         if (validateLogin()) {
             const response = await apiClient.post(LOGIN_ROUTE, { email, password }, { withCredentials: true })
+
+            if (response.data.user.id) {
+                setUserInfo(response.data.user)
+            }
             console.log(response.data);
-            navigate("/chat")
+            navigate("/profile")
         }
     }
 
