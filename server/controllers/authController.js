@@ -77,3 +77,59 @@ export const logIn = async (req, res, next) => {
         res.status(500).send("Internal Server Error", error.message)
     }
 }
+
+export const getUserInfo = async (req, res, next) => {
+    try {
+        const userId = req.userId;
+        const userData = await User.findById(userId)
+
+        if (!userData) {
+            return res.status(404).send("User not found")
+        }
+        res.status(200).json({
+
+            id: userData.id,
+            email: userData.email,
+            profileSetup: userData.profileSetup,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            image: userData.image,
+            color: userData.color,
+
+        })
+
+    } catch (error) {
+        console.log({ error });
+        res.status(500).send("Internal Server Error", error.message)
+    }
+}
+
+export const updateProfile = async (req, res, next) => {
+    try {
+        const userId = req.userId;
+        const { firstName, lastName, color } = req.body
+        if (!firstName || !lastName || color !== undefined) {
+            return res.status(400).send("First name, last name and color are needed for setting up the profile")
+        }
+        const userData = await User.findByIdAndUpdate(userId,
+            { firstName, lastName, color, profileSetup: true },
+            { new: true, runValidators: true }
+        )
+
+        res.status(200).json({
+
+            id: userData.id,
+            email: userData.email,
+            profileSetup: userData.profileSetup,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            image: userData.image,
+            color: userData.color,
+
+        })
+
+    } catch (error) {
+        console.log({ error });
+        res.status(500).send("Internal Server Error", error.message)
+    }
+}
